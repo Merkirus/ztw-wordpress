@@ -21,10 +21,17 @@
   function aap_admin_page() {
     global $_POST;
 
+    if(get_option('aap_announcement')){
+        $announcements = get_option('aap_announcement');
+    }
+    else {
+        $announcements = [];
+    }
+
     if (isset($_POST['aap_do_change'])) {
-      $new_announcement = $_POST['aap_announcement'];
+      array_push($announcements, $_POST['aap_announcement']);
       echo '<div class="notice notice-success is-dismissible"><p>Announcement saved.</p></div>';
-      update_option('aap_announcement', $new_announcement);
+      update_option('aap_announcement', $announcements);
     }
 
 ?>
@@ -41,14 +48,11 @@
   }
 
   function aap_place_announcement($content) {
-    $announcement_value = get_option('aap_announcement');
-    $announcement = <<<EOT
-    <div class="aap_announcement">
-      <p>$announcement_value</p>
-    </div>
-    EOT;
-    $new_content = $announcement . $content;
-    return $new_content;
+    $announcements = get_option('aap_announcement');
+    $announcement_value = $announcements[array_rand($announcements, 1)];
+    return '<div class="aap_announcement">
+      <p>'.$announcement_value.'</p>
+    </div>'.$content;
   }
   add_filter( 'the_content', 'aap_place_announcement' );
 
@@ -58,4 +62,5 @@
   }
 
   add_action('init', 'aap_register_styles');
+
 ?>
