@@ -1,0 +1,7 @@
+.aap_announcement {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid lightblue;
+  border-radius: 10px;
+}
