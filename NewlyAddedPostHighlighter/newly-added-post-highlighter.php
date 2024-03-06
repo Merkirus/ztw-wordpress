@@ -41,4 +41,23 @@
     </div>
 <?php
   }
+
+  function naph_mark_new_post_title($content, $id) {
+    $date = get_the_date('Ymd', $id);
+    $now = date('Ymd');
+    $opDays = get_option('naph_days');
+    if ($now - $date <= $opDays) {
+      return $content."<sup class=\"naph_marker\">new</sup>";
+    }
+    return $content;
+  }
+
+  add_filter("the_title", "naph_mark_new_post_title", 10, 2);
+
+  function naph_register_styles() {
+    wp_register_style('naph_styles', plugins_url('/css/style.css', __FILE__));
+    wp_enqueue_style('naph_styles');
+  }
+
+  add_action('init', 'naph_register_styles');
 ?>
