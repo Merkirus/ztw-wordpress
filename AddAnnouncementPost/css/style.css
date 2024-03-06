@@ -5,3 +5,25 @@
   border: 2px solid lightblue;
   border-radius: 10px;
 }
+
+.aap_item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 20%;
+  gap: 10px;
+  border: 1px solid lightblue;
+  border-radius: 10px;
+  margin: 10px;
+}
+
+.remove_button {
+  height: fit-content;
+  background-color: #ff6666;
+  color: white;
+  border-radius: 10px;
+}
+
+.wrapping_text {
+  word-break: break-word;
+}

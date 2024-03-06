@@ -34,20 +34,39 @@
       update_option('aap_announcement', $announcements);
     }
 
+    if (isset($_POST['aap_do_remove'])) {
+      $announcements = get_option('aap_announcement');
+      unset($announcements[(int)$_POST['id_removed_announcement']]);
+      echo '<div class="notice notice-success is-dismissible"><p>Announcement removed.</p></div>';
+      update_option('aap_announcement', $announcements);
+    }
+
 ?>
   <div class="wrap">
     <h1>Announcement page</h1>
     <form name="aap_form" method="post">
       <input type="hidden" name="aap_do_change" value="Y">
       <p>Add new announcement</p>
-      <input type="textarea" name="aap_announcement" rows="4" cols="50">
+      <textarea name="aap_announcement" rows="5" cols="50"></textarea>
       <p class="submit"><input type="submit" value="Submit"></p>
+    </form>
+  </div>
+  <br>
+  <div>
+    <form name="aap_form_remove" method="post">
+      <input type="hidden" name="aap_do_remove" value="Y">
+      <?php foreach (get_option('aap_announcement') as $key=>$value) { ?>
+      <div class="aap_item"><p class="wrapping_text"><?php echo $value; ?></p><button class="remove_button" type="submit" name="id_removed_announcement" value="<?php echo $key; ?>">X</button></div>
+      <?php } ?>
     </form>
   </div>
 <?php
   }
 
   function aap_place_announcement($content) {
+    if (!get_option('aap_announcement')) {
+      return $content;
+    }
     $announcements = get_option('aap_announcement');
     $announcement_value = $announcements[array_rand($announcements, 1)];
     return '<div class="aap_announcement">
