@@ -27,3 +27,9 @@
 .wrapping_text {
   word-break: break-word;
 }
+
+.aap_small_details {
+  font-size: 10px;
+  color: gray;
+}
+

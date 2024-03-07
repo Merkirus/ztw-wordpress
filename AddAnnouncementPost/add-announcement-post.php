@@ -63,15 +63,36 @@
 <?php
   }
 
+  function ccv_increment_post_views() {
+    if(is_single()) {
+      global $post;
+      $views = get_post_meta($post->ID, 'ccv_post_views', true);
+      $views = ($views === '') ? 1 : $views + 1;
+      update_post_meta($post->ID, 'ccv_post_views', $views);
+      update_option('aap_views', $views);
+    }
+  }
+
+  add_action('wp_head', 'ccv_increment_post_views');
+
   function aap_place_announcement($content) {
     if (!get_option('aap_announcement')) {
       return $content;
     }
     $announcements = get_option('aap_announcement');
     $announcement_value = $announcements[array_rand($announcements, 1)];
+  
+    $char_count = strlen(strip_tags($content));
+    $char_count_html = '<p>Character count: ' . $char_count . '</p>';
+
+    $views = get_option('aap_views');
+    $views_html = '<p>Views count: ' . $views . '</p>';
+
+
     return '<div class="aap_announcement">
       <p>'.$announcement_value.'</p>
-    </div>'.$content;
+    </div>'.$content . '<div class="aap_small_details">' . $views_html . $char_count_html . '</div>';
+
   }
   add_filter( 'the_content', 'aap_place_announcement' );
 
