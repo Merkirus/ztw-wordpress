@@ -18,18 +18,48 @@
 
   add_action("admin_menu", "aap_admin_actions_register_menu");
 
-  function aap_admin_page() {
-    global $_POST;
+  function aap_announcements_table() {
     global $wpdb;
 
+    $table_name = "announcements";
+    if (!in_array($table_name, $wpdb->tables)) {
+      $wpdb->query(
+	      $wpdb->prepare(
+		      "
+		      CREATE TABLE $table_name (
+				id_announcement int NOT NULL AUTO_INCREMENT,
+				announcement varchar(255),
+				PRIMARY KEY (id_announcement)
+			);
+		      "
+	      )
+      );
+    }
+  }
+
+  add_action('init', 'aap_announcements_table');
+
+  function aap_admin_page() {
+    global $_POST;
+
+    if(get_option('aap_announcement')){
+        $announcements = get_option('aap_announcement');
+    }
+    else {
+        $announcements = [];
+    }
+
     if (isset($_POST['aap_do_change'])) {
+      array_push($announcements, $_POST['aap_announcement']);
       echo '<div class="notice notice-success is-dismissible"><p>Announcement saved.</p></div>';
-      $wpdb->insert('announcements', array('announcement' => $_POST['aap_announcement']), array('%s'));
+      update_option('aap_announcement', $announcements);
     }
 
     if (isset($_POST['aap_do_remove'])) {
+      $announcements = get_option('aap_announcement');
+      unset($announcements[(int)$_POST['id_removed_announcement']]);
       echo '<div class="notice notice-success is-dismissible"><p>Announcement removed.</p></div>';
-      $wpdb->delete('announcements', array('announcement' => $_POST['id_removed_announcement']), array('%s'));
+      update_option('aap_announcement', $announcements);
     }
 
 ?>
@@ -40,6 +70,15 @@
       <p>Add new announcement</p>
 <?php wp_editor("", "aap_announcement"); ?>
       <p class="submit"><input type="submit" value="Submit"></p>
+    </form>
+  </div>
+  <br>
+  <div>
+    <form name="aap_form_remove" method="post">
+      <input type="hidden" name="aap_do_remove" value="Y">
+      <?php foreach (get_option('aap_announcement') as $key=>$value) { ?>
+      <div class="aap_item"><p class="wrapping_text"><?php echo $value; ?></p><button class="remove_button" type="submit" name="id_removed_announcement" value="<?php echo $key; ?>">X</button></div>
+      <?php } ?>
     </form>
   </div>
 <?php
@@ -58,14 +97,12 @@
   add_action('wp_head', 'ccv_increment_post_views');
 
   function aap_place_announcement($content) {
-    global $wpdb;
     if (!get_option('aap_announcement')) {
       return $content;
     }
-    $table_name = $wpdb->prefix . 'announcements';
-    $announcements = $wpdb->get_results( "SELECT announcement FROM announcements");
-    $r = rand(0, count($announcements));
-$announcement_value = $announcements[array_rand($announcements, 1)]->announcement;
+    $announcements = get_option('aap_announcement');
+    $announcement_value = $announcements[array_rand($announcements, 1)];
+  
     $char_count = strlen(strip_tags($content));
     $char_count_html = '<p>Character count: ' . $char_count . '</p>';
 
